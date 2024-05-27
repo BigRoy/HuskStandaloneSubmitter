@@ -5,7 +5,7 @@ from System.Diagnostics import *
 from System.IO import *
 
 import re
-
+import os
 from Deadline.Plugins import *
 from Deadline.Scripting import *
 
@@ -126,7 +126,11 @@ class HuskStandalone(DeadlinePlugin):
         # They mention using the `--disable-dummy-raster-product` husk flag.
 
         arguments.append("--make-output-path")
-        arguments.append("--disable-dummy-raster-product")
+        
+        hou_version = os.getenv("HOUDINI_VERSION")
+        if hou_version and hou_version.startswith("20"):
+            arguments.append("--disable-dummy-raster-product")
+
         return " ".join(arguments)
 
     def SingleFrameOnly(self):
