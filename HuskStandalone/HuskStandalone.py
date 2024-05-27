@@ -70,7 +70,11 @@ class HuskStandalone(DeadlinePlugin):
 
     def RenderExecutable(self):
         """Return render executable path"""
-        return self.GetRenderExecutable("USD_RenderExecutable")
+        version = self.GetPluginInfoEntryWithDefault( "Version", "" ).replace( ".", "_" )
+        if version:
+            version = "_"+version
+        exe = self.GetRenderExecutable( "USD_RenderExecutable" + version)
+        return exe
 
     def RenderArgument(self):
         """Return arguments that go after the filename in the render command"""
@@ -127,8 +131,7 @@ class HuskStandalone(DeadlinePlugin):
 
         arguments.append("--make-output-path")
         
-        hou_version = os.getenv("HOUDINI_VERSION")
-        if hou_version and hou_version.startswith("20"):
+        if self.GetPluginInfoEntryWithDefault( "Version", "" ).startswith("20"):
             arguments.append("--disable-dummy-raster-product")
 
         return " ".join(arguments)

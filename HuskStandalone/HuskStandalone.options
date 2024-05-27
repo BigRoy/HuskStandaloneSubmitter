@@ -37,6 +37,15 @@ Description="for USD we are unsure whether we need this?"
 Required=false
 DisableIfBlank=true
 
+[Version]
+Type=label
+Label=Version
+Category=Husk Version
+Index=0
+Description=Husk Version.
+Required=false
+DisableIfBlank=true
+
 [Renderer]
 Type=label
 Label=Renderer
