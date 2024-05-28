@@ -132,11 +132,12 @@ class HuskStandalone(DeadlinePlugin):
         
         version = self.GetPluginInfoEntryWithDefault("Version", "")
 
-        # Version is always in the form (major.minor) which can be converted to float.
-        if version and  (float(version) < 20):
-            return " ".join(arguments)
-        
-        arguments.append("--disable-dummy-raster-product")
+        # We assume no version passed will be latest version, 
+        # otherwise version would be in the form (major.minor) 
+        # where we only consider the major version.
+        if not version or float(version.split(".", 1)[0]) >= 20:
+            # Supported only on Houdini 20+. 
+            arguments.append("--disable-dummy-raster-product")
 
         return " ".join(arguments)
 
