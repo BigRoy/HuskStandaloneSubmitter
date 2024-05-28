@@ -129,7 +129,7 @@ class HuskStandalone(DeadlinePlugin):
         # They mention using the `--disable-dummy-raster-product` husk flag.
 
         arguments.append("--make-output-path")
-        
+
         version = self.GetPluginInfoEntryWithDefault("Version", "")
 
         # We assume no version passed will be latest version, 
@@ -138,7 +138,7 @@ class HuskStandalone(DeadlinePlugin):
         if not version or float(version.split(".", 1)[0]) >= 20:
             # Supported only on Houdini 20+. 
             arguments.append("--disable-dummy-raster-product")
-
+        
         return " ".join(arguments)
 
     def SingleFrameOnly(self):

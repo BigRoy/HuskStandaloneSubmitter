@@ -26,13 +26,10 @@ Deadline 10
 Installation
 </H1>
 
-Copy the files to the following locations:
+> This directory is an overlay for Deadline repository. 
+> It means that you can copy the whole hierarchy to Deadline repository and it should work.
 
-huskStandaloneSubmitter.py
-DeadlineRepository \custom\scripts\Submission
-
-HuskStandalone (DIR)
-DeadlineRepository \custom\plugins\HuskStandalone
+Copy the files to `DeadlineRepository` location
 
 <H3>
 Developed for University of Hertfordshire - Digital Animation 3D & VFX Degree
