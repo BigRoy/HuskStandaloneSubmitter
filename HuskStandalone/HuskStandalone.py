@@ -130,8 +130,12 @@ class HuskStandalone(DeadlinePlugin):
 
         arguments.append("--make-output-path")
         
-        if self.GetPluginInfoEntryWithDefault( "Version", "" ).startswith("20"):
-            arguments.append("--disable-dummy-raster-product")
+        version = self.GetPluginInfoEntryWithDefault( "Version", "" )
+        # Version is always in the form (major.minor) which can be converted to float.
+        if version and  (float(version) < 20):
+            return " ".join(arguments)
+        
+        arguments.append("--disable-dummy-raster-product")
 
         return " ".join(arguments)
 
