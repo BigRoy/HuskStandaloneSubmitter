@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import re
+
 from System import *
 from System.Diagnostics import *
 from System.IO import *
 
-import re
-import os
 from Deadline.Plugins import *
 from Deadline.Scripting import *
 
