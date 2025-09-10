@@ -130,7 +130,7 @@ Required=false
 DisableIfBlank=true
 
 [SlapCompSources]
-Type=string
+Type=multilinestring
 Label=Slap Comps
 Lines=5
 Category=Additional Options
