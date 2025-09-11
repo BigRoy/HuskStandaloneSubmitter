@@ -140,6 +140,12 @@ class HuskStandalone(DeadlinePlugin):
             # Supported only on Houdini 20+. 
             arguments.append("--disable-dummy-raster-product")
 
+        # Slap Comp Args
+        slapcomp_sources = self.GetPluginInfoEntryWithDefault("SlapCompSources", "")
+        for source in slapcomp_sources.splitlines():
+            if source:
+                arguments.append(f"--slap-comp {source}")
+
         return " ".join(arguments)
 
     def SingleFrameOnly(self):
