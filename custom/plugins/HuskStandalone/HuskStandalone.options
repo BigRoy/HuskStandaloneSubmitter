@@ -135,6 +135,6 @@ Label=Slap Comps
 Lines=5
 Category=Additional Options
 Index=0
-Description=each line represents a slap comp source follows: slap_comp_path?option=value&option2=value2
+Description=Each line represents a slap comp source, like: slap_comp_path?option=value&option2=value2
 Required=false
 DisableIfBlank=true
