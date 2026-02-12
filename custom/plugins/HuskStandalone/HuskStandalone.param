@@ -51,3 +51,12 @@ Index=2
 Label=HUSK 20.5 Executable
 Description=The path to the husk executable file used for rendering. Enter alternative paths on separate lines.
 Default=C:\Program Files\Side Effects Software\Houdini 20.5.000\bin\husk.exe
+
+[USD_RenderExecutable_21_0]
+Type=multilinemultifilename
+Category=Render Executables
+CategoryOrder=0
+Index=2
+Label=HUSK 21.0 Executable
+Description=The path to the husk executable file used for rendering. Enter alternative paths on separate lines.
+Default=C:\Program Files\Side Effects Software\Houdini 21.0.000\bin\husk.exe
