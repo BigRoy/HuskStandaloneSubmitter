@@ -68,6 +68,7 @@ class HuskStandalone(DeadlinePlugin):
         self.AddStdoutHandlerCallback(".*ERROR.*\[texturesys\] .* (Could not open file .*)").HandleCallback += self.HandleStdoutError  # capture error if texture can't be loaded
         self.AddStdoutHandlerCallback("USD ERROR(.*)").HandleCallback += self.HandleStdoutError  # detect usd error
         self.AddStdoutHandlerCallback(r"ALF_PROGRESS ([0-9]+(?=%))").HandleCallback += self.HandleStdoutProgress
+        self.AddStdoutHandlerCallback(".*OIIO Error: Error writing data to subimage(.*)").HandleCallback += self.HandleStdoutError  # detect OIIO error
 
     def RenderExecutable(self):
         """Return render executable path"""
