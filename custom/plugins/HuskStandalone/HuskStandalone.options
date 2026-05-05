@@ -138,3 +138,45 @@ Index=0
 Description=Each line represents a slap comp source, like: slap_comp_path?option=value&option2=value2
 Required=false
 DisableIfBlank=true
+
+[TileIndex]
+Type=integer
+Minimum=-1
+Maximum=1024
+Label=Tile Index
+Category=Tile Rendering
+Index=0
+Description=Index of this tile (0-based). -1 = not a tile job.
+Required=false
+DisableIfBlank=true
+
+[TilesX]
+Type=integer
+Minimum=0
+Maximum=64
+Label=Tiles X
+Category=Tile Rendering
+Index=1
+Description=Number of tiles in X (husk --tile-count X Y). 0 = not a tile job.
+Required=false
+DisableIfBlank=true
+
+[TilesY]
+Type=integer
+Minimum=0
+Maximum=64
+Label=Tiles Y
+Category=Tile Rendering
+Index=2
+Description=Number of tiles in Y (husk --tile-count X Y). 0 = not a tile job.
+Required=false
+DisableIfBlank=true
+
+[TileSuffix]
+Type=string
+Label=Tile Suffix
+Category=Tile Rendering
+Index=3
+Description=Printf pattern appended to output filenames (--tile-suffix), e.g. _tile%02d. Husk substitutes the tile index itself.
+Required=false
+DisableIfBlank=true
