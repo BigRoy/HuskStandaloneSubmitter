@@ -122,6 +122,40 @@ class HuskStandalone(DeadlinePlugin):
             if value:
                 arguments.append(f"--{husk_flag} {value}")
 
+        # Tile rendering flags. Husk wants `--tile-count X Y` (two values)
+        # plus `--tile-index N` and a printf-style `--tile-suffix` like
+        # `_tile%02d` (husk substitutes the index itself). Only emitted when
+        # TilesX > 0 and TilesY > 0 (i.e. this is actually a tile job).
+        # TileIndex=0 is a real value (first tile), so we don't use the
+        # falsy-check the generic loop above uses.
+        try:
+            tiles_x = int(
+                self.GetPluginInfoEntryWithDefault("TilesX", "0")
+            )
+        except ValueError:
+            tiles_x = 0
+        try:
+            tiles_y = int(
+                self.GetPluginInfoEntryWithDefault("TilesY", "0")
+            )
+        except ValueError:
+            tiles_y = 0
+        if tiles_x > 0 and tiles_y > 0:
+            try:
+                tile_index = int(
+                    self.GetPluginInfoEntryWithDefault("TileIndex", "-1")
+                )
+            except ValueError:
+                tile_index = -1
+            if tile_index >= 0:
+                arguments.append(f"--tile-index {tile_index}")
+                arguments.append(f"--tile-count {tiles_x} {tiles_y}")
+                tile_suffix = self.GetPluginInfoEntryWithDefault(
+                    "TileSuffix", ""
+                )
+                if tile_suffix:
+                    arguments.append(f"--tile-suffix {tile_suffix}")
+
         # Default to restart delegate every frame since it's much more reliable
         # e.g. arnold just doesn't update per frame otherwise
         arguments.append("--restart-delegate 1")
