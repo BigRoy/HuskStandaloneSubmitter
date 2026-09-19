@@ -64,12 +64,21 @@ Description=The Render Settings Prim Path to use as Render Settings, defaults to
 Required=false
 DisableIfBlank=true
 
+[RenderPass]
+Type=label
+Label=Render Pass Prim Path
+Category=Rendering
+Index=0
+Description=The Render Pass Prim Path to render with.
+Required=false
+DisableIfBlank=true
+
 [Purpose]
 Type=label
 Label=Purpose
 Category=Rendering
 Index=0
-Description=The USD Hydra Delegate renderer to use for rendering.
+Description=Prim purposes to render
 Required=false
 DisableIfBlank=true
 
