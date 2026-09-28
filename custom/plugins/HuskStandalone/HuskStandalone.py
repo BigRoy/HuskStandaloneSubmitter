@@ -109,6 +109,7 @@ class HuskStandalone(DeadlinePlugin):
         plugin_info_to_husk_arguments = {
             "Renderer": "renderer",
             "RenderSettings": "settings",
+            "RenderPass": "pass",
             "Purpose": "purpose",
             "Complexity": "complexity",
             "Snapshot": "snapshot",
