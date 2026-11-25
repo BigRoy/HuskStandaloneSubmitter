@@ -217,6 +217,10 @@ class HuskStandalone(DeadlinePlugin):
         tiles_x, tiles_y = self.GetTileCount()
         tile_suffix = self.GetTileSuffix()
         root, ext = os.path.splitext(output)
+        # Other formats have no data window, so each tile is a full image
+        # and itilestitch would keep only the last one without an error.
+        if ext.lower() != ".exr":
+            self.FailRender(f"Stitching requires EXR tiles, got: {output}")
         tiles = []
         for tile_index in range(tiles_x * tiles_y):
             suffix = expand_frame_token(tile_suffix, tile_index)
@@ -225,12 +229,12 @@ class HuskStandalone(DeadlinePlugin):
             )
             tiles.append(root + suffix + ext)
 
-        # Without the tile index in the suffix all tiles wrote the same file,
-        # and itilestitch would stitch that single tile without an error.
+        # Without $F or %d all tiles get the same name, and itilestitch
+        # would stitch that single tile without an error.
         if len(set(tiles)) != len(tiles):
             self.FailRender(
-                f"TileSuffix '{tile_suffix}' has no tile index ($F or %d), "
-                "so all tiles were written to the same file."
+                f"TileSuffix '{tile_suffix}' needs the tile index as $F or %d, "
+                "e.g. _tile%02d."
             )
 
         # itilestitch does not say which tile is missing
