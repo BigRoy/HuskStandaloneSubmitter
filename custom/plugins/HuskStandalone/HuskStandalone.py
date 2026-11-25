@@ -4,6 +4,7 @@ from System import *
 from System.Diagnostics import *
 from System.IO import *
 
+import os
 import re
 
 from Deadline.Plugins import *
@@ -75,13 +76,28 @@ class HuskStandalone(DeadlinePlugin):
         version = self.GetPluginInfoEntryWithDefault("Version", "")
         if version:
             version = "_" + version.replace(".", "_")
-        return self.GetRenderExecutable("USD_RenderExecutable" + version)
+        executable = self.GetRenderExecutable("USD_RenderExecutable" + version)
+
+        if self.GetBooleanPluginInfoEntryWithDefault("Stitch", False):
+            # Houdini ships itilestitch next to husk
+            extension = os.path.splitext(executable)[1]  # .exe on Windows
+            executable = os.path.join(
+                os.path.dirname(executable), "itilestitch" + extension
+            )
+            self.LogInfo("Stitch executable: " + executable)
+
+        return executable
 
     def RenderArgument(self):
         """Return arguments that go after the filename in the render command"""
+        if self.GetBooleanPluginInfoEntryWithDefault("Stitch", False):
+            return self.StitchArgument()
 
         startFrame = self.GetStartFrame()
         endFrame = self.GetEndFrame()
+        if self.IsTileJob():
+            # A Deadline tile job renders one tile of a single frame per task
+            endFrame = startFrame
 
         # construct filename
         usdFile = self.GetPluginInfoEntry("SceneFile")
@@ -123,6 +139,29 @@ class HuskStandalone(DeadlinePlugin):
             if value:
                 arguments.append(f"--{husk_flag} {value}")
 
+        # Tile rendering
+        tile_index = self.GetIntegerPluginInfoEntryWithDefault("TileIndex", -1)
+        if self.IsTileJob():
+            # Each task of a Deadline tile job renders the tile of its task id
+            tile_index = int(self.GetCurrentTaskId())
+
+        if self.GetBooleanPluginInfoEntryWithDefault("AutoTile", False):
+            # Husk renders all tiles and stitches them in a single process
+            tiles_x, tiles_y = self.GetTileCount()
+            arguments.append("--autotile")
+            arguments.append(f"--tile-count {tiles_x} {tiles_y}")
+            auto_tile_res = self.GetPluginInfoEntryWithDefault(
+                "AutoTileRes", ""
+            )
+            if auto_tile_res:
+                arguments.append(f"--autotile-res {auto_tile_res}")
+        elif tile_index >= 0:
+            # Render a single tile, a stitch job assembles the final image
+            tiles_x, tiles_y = self.GetTileCount()
+            arguments.append(f"--tile-index {tile_index}")
+            arguments.append(f"--tile-count {tiles_x} {tiles_y}")
+            arguments.append(f"--tile-suffix {self.GetTileSuffix()}")
+
         # Default to restart delegate every frame since it's much more reliable
         # e.g. arnold just doesn't update per frame otherwise
         arguments.append("--restart-delegate 1")
@@ -149,6 +188,83 @@ class HuskStandalone(DeadlinePlugin):
                 arguments.append(f"--slap-comp {source}")
 
         return " ".join(arguments)
+
+    def StitchArgument(self):
+        """Return itilestitch arguments: the output image, then its tiles"""
+        frame = self.GetStartFrame()
+        if self.GetEndFrame() != frame:
+            self.FailRender(
+                "Stitching supports a single frame per task. "
+                "Set the job's frames per task to 1."
+            )
+
+        # The output image to stitch is the stitch job's only output
+        job = self.GetJob()
+        outputs = [
+            os.path.join(directory, filename) for directory, filename
+            in zip(job.JobOutputDirectories, job.JobOutputFileNames)
+        ]
+        if len(outputs) != 1:
+            self.FailRender(
+                f"Stitching requires a single job output, got {len(outputs)}."
+            )
+        output = RepositoryUtils.CheckPathMapping(outputs[0])
+        output = output.replace("\\", "/")
+        output = FrameUtils.ReplacePaddingWithFrameNumber(output, frame)
+
+        # Husk writes each tile next to the output image, with the tile suffix
+        # before the extension, and expands $F or %d in it to the tile index.
+        tiles_x, tiles_y = self.GetTileCount()
+        tile_suffix = self.GetTileSuffix()
+        root, ext = os.path.splitext(output)
+        # Other formats have no data window, so each tile is a full image
+        # and itilestitch would keep only the last one without an error.
+        if ext.lower() != ".exr":
+            self.FailRender(f"Stitching requires EXR tiles, got: {output}")
+        tiles = []
+        for tile_index in range(tiles_x * tiles_y):
+            suffix = expand_frame_token(tile_suffix, tile_index)
+            suffix = re.sub(
+                r"%\d*d", lambda match: match.group(0) % tile_index, suffix
+            )
+            tiles.append(root + suffix + ext)
+
+        # Without $F or %d all tiles get the same name, and itilestitch
+        # would stitch that single tile without an error.
+        if len(set(tiles)) != len(tiles):
+            self.FailRender(
+                f"TileSuffix '{tile_suffix}' needs the tile index as $F or %d, "
+                "e.g. _tile%02d."
+            )
+
+        # itilestitch does not say which tile is missing
+        missing = [tile for tile in tiles if not os.path.isfile(tile)]
+        if missing:
+            self.FailRender("Missing tiles:\n" + "\n".join(missing))
+
+        self.LogInfo(f"Stitching {len(tiles)} tiles into: {output}")
+        return " ".join([output] + tiles)
+
+    def GetTileCount(self):
+        """Return the number of tiles in x and y"""
+        tiles_x = self.GetIntegerPluginInfoEntryWithDefault("TilesX", 0)
+        tiles_y = self.GetIntegerPluginInfoEntryWithDefault("TilesY", 0)
+        if tiles_x < 1 or tiles_y < 1:
+            self.FailRender(
+                "Tile rendering requires TilesX and TilesY, "
+                f"got {tiles_x}x{tiles_y}."
+            )
+        return tiles_x, tiles_y
+
+    def GetTileSuffix(self):
+        """Return the suffix husk adds to each tile's output name"""
+        tile_suffix = self.GetPluginInfoEntryWithDefault("TileSuffix", "")
+        if not tile_suffix:
+            # Otherwise all tiles would write to the same file
+            self.FailRender(
+                "Tile rendering requires TileSuffix, e.g. _tile%02d"
+            )
+        return tile_suffix
 
     def SingleFrameOnly(self):
         """Return whether the task supports single frame only"""
