@@ -147,3 +147,66 @@ Index=0
 Description=Each line represents a slap comp source, like: slap_comp_path?option=value&option2=value2
 Required=false
 DisableIfBlank=true
+
+[AutoTile]
+Type=label
+Label=Auto Tile
+Category=Tile Rendering
+Index=0
+Description=Render all tiles in a single husk process and stitch them (husk --autotile). Houdini 21+.
+Required=false
+DisableIfBlank=true
+
+[TilesX]
+Type=label
+Label=Tiles X
+Category=Tile Rendering
+Index=1
+Description=Number of tiles in X (husk --tile-count X Y).
+Required=false
+DisableIfBlank=true
+
+[TilesY]
+Type=label
+Label=Tiles Y
+Category=Tile Rendering
+Index=2
+Description=Number of tiles in Y (husk --tile-count X Y).
+Required=false
+DisableIfBlank=true
+
+[AutoTileRes]
+Type=label
+Label=Auto Tile Resolution
+Category=Tile Rendering
+Index=3
+Description=Maximum tile resolution in X and Y with Auto Tile (husk --autotile-res), e.g. 4096 4096. Husk adds tiles when one would be larger.
+Required=false
+DisableIfBlank=true
+
+[TileIndex]
+Type=label
+Label=Tile Index
+Category=Tile Rendering
+Index=4
+Description=Index of the tile to render (0-based). -1 = not a single tile job. In a Deadline tile job each task renders the tile of its task id.
+Required=false
+DisableIfBlank=true
+
+[TileSuffix]
+Type=label
+Label=Tile Suffix
+Category=Tile Rendering
+Index=5
+Description=Suffix added to each tile's output filename (husk --tile-suffix), e.g. _tile%02d. Husk replaces $F or %d with the tile index.
+Required=false
+DisableIfBlank=true
+
+[Stitch]
+Type=label
+Label=Stitch
+Category=Tile Rendering
+Index=6
+Description=Stitch the tiles of each frame into the job's output image with itilestitch, instead of rendering.
+Required=false
+DisableIfBlank=true
